@@ -1,0 +1,45 @@
+DistrictName changes:
+populationdata	polygon
+Ambalantota -> Ambalanthota 
+Ambaganga Korale -> Ambanganga Korale
+
+Benthota -> Bentota 
+Haldummulla ->  Hildummulla 
+Musalai -> musali
+Walallavita  -> Walallawita 
+
+Kandavalai -> Kandawali
+
+Vadamaradchi South-West (Karaveddy)
+Islands South (Velanai) -> Island South (Velanai)
+Thenmaradchi (Chavakachcheri) -> Thenmaradchy (Chavakachcheri)
+Vadamaradchi East (Maruthnkerny) -> Vadamaradchy East 
+Vadamaradchi South-West (Karaveddy) -> Vadamaradchi South-West
+
+Valikamam East (Kopay)  -> Valikamam East
+Valikamam North (Tellippalai) -> Valikamam North
+Valikamam South (Uduvil) -> Valikamam South
+Valikamam South-West (Sandilipay) -> Valikamam South-West
+Valikamam West (Chankanai) -> Valikamam West
+ -> K.F.G. & G. Korale
+ 
+Mahawa/Maho -> Mahawa
+Manthai East (Pandiyankulam) -> Manthai East
+Mundalama/Mundel -> Mundalama
+Verugal (Echchilampattai) -> Verugal
+
+Arachchikattuwa -> Arachchikattuwa PS
+Dehiwala -> Dehiwala-Mount Lavinia
+Kirinda Puhulwella -> Kirinda-Puhulwella
+Koralai Pattu North (Vaharai) -> Koralai Pattu North
+
+Nuwaragam Palatha Central -> N. Palatha Central
+Nuwaragam Palatha East -> N. Palatha East
+Valikamam East (Kopay) -> Valikamam East
+
+                NAME_2 ID_1      NAME_1 ID_2      area Pop_2012
+123          Katupotha   14  Kurunegala  195 103897529       NA
+271      Thampalakamam   24 Trincomalee  317 240473480       NA
+292 Vadamaradchy North    9      Jaffna  131  40395338       NA
+
+
