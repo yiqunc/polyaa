@@ -40,18 +40,18 @@ Before loading the script into R console, some changes need to be made in the so
 (1) Set up your working directory
 setwd("/Users/yiqunc/PolygonAA")
 (2) Set up global variables:
-# the outputs for a country in a specific year will be stored at "gOutRootDirgCountryName/gDataYear/seedDirName" 
+the outputs for a country in a specific year will be stored at "gOutRootDirgCountryName/gDataYear/seedDirName" 
 gOutRootDir <<- "./output/"
 gCountryName <<- "Sirilanka"
 gDataYear <<- "2012"
 
-#if travel distance / euclidean distance is bigger than gTERMax, the API results are treated as issused ones and need further correction.
+if travel distance / euclidean distance is bigger than gTERMax, the API results are treated as issused ones and need further correction.
 gTERMax <<- 3.0
 
-# the total population of a country in a specific year
+the total population of a country in a specific year
 gCountryTotalPop <<- 20263723 # Sirilankn population  2012: 20263723 ;  for 2001 : 17179935
 
-# show debug infomation when processing
+show debug infomation when processing
 gShowDebugInfo = FALSE
 (3) Define a projected srs (spatial reference system) for your case study area. User can use the "Proj4js format" string declared in http://spatialreference.org/ 
 Finding a proper projected srs is important it affects the accuracy of euclidean distance calculation.
