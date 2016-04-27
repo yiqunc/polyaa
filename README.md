@@ -59,7 +59,7 @@ User can easily extend the srsDF data frame to include new srs for the target co
 If user cannot provide an valid projected srs, the script will use EPSG:3857 as the universal projected srs (http://trac.osgeo.org/proj/wiki/FAQ). While, this is NOT the best solution for any particular area.
 
 
-(4) Setup default parameter values for generic function "f_genAI" and "f_genAI2". Please check out the source code for parameter definitions. Here are some usage examples:
+(4) Setup default parameter values for generic function "AI.gen". Please check out the source code for parameter definitions. Here are some usage examples:
 
 (a) create AI with single threshold combination: population density:150, minimum seed population 20000, travel time 60 minutes
 AI.gen(thPopDen=150,thSeedMinPop=20000, thTvlTime=60)

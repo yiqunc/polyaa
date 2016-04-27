@@ -1,7 +1,7 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # ========================================================================
 # ========================================================================
-# Copyright 2014 University of Melbourne
+# Copyright 2014-2016 University of Melbourne
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,12 +21,15 @@
 # Purpose: the algorithm is developed to measure the urbanization 
 #          index of different countries in a specific year at any given 
 #          administrative district levels. 
-# Version: 3.0
-# Last Updated: 24-July-2014
+# Version: 3.1
+# Last Updated: 28-April-2016
 # Written by: Dr. Yiqun Chen    yiqun.c@unimelb.edu.au
 #             Dr. Jennifer Day    jday@unimelb.edu.au
 #
 # Change Log:
+# (v3.1) (1) compatibility fix for MapQuest/Google API changes.
+#		 (2) use China mainland as a sample case.
+#		 (3) user can provide a precooked inner centroids shape file instead of running InnerCentroids.gen() method
 # (v3.0) (1)adding license stuff 
 #        (2)add a new processing control varialbe: gLoopStartIndex, defualt as 1
 #        In case of the process ends abnornally, e.g. experiencing network exceptions, or being terminated by ourselves since it's time to go home, 
