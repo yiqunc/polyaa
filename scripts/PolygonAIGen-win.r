@@ -84,7 +84,7 @@ gDataYear <<- "2010"
 gTERMax <<- 3.0
 
 # the total population of a country in a specific year
-gCountryTotalPop <<- 78500380 # China population  2010: 1332650308; 2000: 1211070419  Jiangsu 2010:78500380 2000: 70205132
+gCountryTotalPop <<- 1332650308 # China population  2010: 1332650308; 2000: 1211070419  Jiangsu 2010:78500380 2000: 70205132
 
 # global dataframe to store RouteInfo
 gRouteInfoDF = NULL
@@ -170,10 +170,9 @@ RouteInfo.append <- function(startIdx=0, endIdx=0, eucDist=0, tvlDist=0, tvlTime
 
 # Google Navigation Service Wrapper
 GG.query <- function(url="", mapUnicode=FALSE){
-
-  gGoogleRequestCounter <<- gGoogleRequestCounter + 1
   
   # first, try to send request without key 
+  gGoogleRequestCounter <<- gGoogleRequestCounter + 1
   output = fromJSON(getURL(url, .mapUnicode = mapUnicode))
   
   # if OVER_QUERY_LIMIT occurs, try to use a key that still has quota
@@ -187,6 +186,7 @@ GG.query <- function(url="", mapUnicode=FALSE){
     }
     # if valid key is available
     if(gGoogleAPIKeyCurIndex > 0){
+      gGoogleRequestCounter <<- gGoogleRequestCounter + 1
       gGoogleAPIKeysRequestCounter[gGoogleAPIKeyCurIndex] <<- gGoogleAPIKeysRequestCounter[gGoogleAPIKeyCurIndex] + 1
       curKey = gGoogleAPIKeys[gGoogleAPIKeyCurIndex]
       keyedUrl = sprintf("%s&key=%s",url,curKey)
@@ -195,6 +195,7 @@ GG.query <- function(url="", mapUnicode=FALSE){
     }else{
       #otherwise, still try the nokey request for any luck
       print(sprintf("=== ATTENTION: all GG keys quota are used."))
+      gGoogleRequestCounter <<- gGoogleRequestCounter + 1
       output = fromJSON(getURL(url, .mapUnicode = mapUnicode))
     }
   }
@@ -366,8 +367,11 @@ GeoTool.getLatLonDistance <- function(sLat, sLon, eLat, eLon){
 # (2)denYYYY (YYYY represents the census year in 4 digits, e.g. den2010)
 # (3)lon: polygon centroid longitude (or x) 
 # (4)lat: polygon centroid latitude (or y) 
+# sample usage:
+# (1) AI.gen_v2(thSeedMinPop=500000,thTvlTime=60,seedMergeDist=90,useSeedCandidates=TRUE,seedDirName="ByKeyCities_SeedMergeDist90")
+# (2) AI.gen_v2(thPopDen=400,thSeedMinPop=1000000,thTvlTime=90,seedMergeDist=90,useSeedCandidates=FALSE,seedDirName="BySeedFilter_SeedMergeDist90")
 AI.gen_v2 <- function(dsn="data\\CHN_adm", 
-                   polyFileName="Jiangsu_adm2", 
+                   polyFileName="China_adm2", 
                    outDir=gOutRootDir,
                    thPopDen=150, 
                    thSeedMinPop=1000000,
@@ -382,7 +386,10 @@ AI.gen_v2 <- function(dsn="data\\CHN_adm",
                    centroidYColName = "lat",
                    areaDataColName="area",
                    districtDataColName="name", 
-                   seedDirName="ByDefined",
+                   seedDirName="BySeedFilter",
+                   seedCandidatesVec = c('dongguan','guangzhou','huizhou','zhaoqing','foshan','jiangmen','zhongshan','shenzhen','zhuhai','taizhou, jiangsu','yangzhou','zhenjiang','nanjing','nantong','changzhou','wuxi','suzhou','shanghai','huzhou','jiaxing','hangzhou','shaoxing','ningbo','zhoushan','qinhuangdao','beijing','beidaihe','haibin','tangshan','langfang','tianjin','huanghua','cangzhou','xinxiang','jiaozuo','kaifeng','zhengzhou','luoyang','xuchang','pingdingshan','mianyang','deyang','chengdu','leshan','chongqing','changchun','jilin city','tumen','yanji','longjing','qiqihar','harbin','mudanjiang','suifenhe','daqing','wuhan','qianjiang,hubei','xianning','jiujiang','jingdezhen','huanggang','nanchang','yingtan','changsha','fuzhou, jiangxi','huangshi','xiangtan','zhuzhou','xinyu','ezhou'),
+                   seedCandidatesMatchColName = "adm1_name",
+                   useSeedCandidates = FALSE,
                    countryName=gCountryName,
                    dataYear=gDataYear,
                    seedMergeDist=60
@@ -485,6 +492,10 @@ AI.gen_v2 <- function(dsn="data\\CHN_adm",
   seedDenFilter = adm2@data[, denDataColName] > th_seed_minden
   
   seedFilter = seedPopFilter & seedDenFilter
+  
+  if(useSeedCandidates){
+    seedFilter = seedFilter & tolower(adm2@data[, seedCandidatesMatchColName]) %in% tolower(seedCandidatesVec)
+  }
   seedFilter = ifelse(is.na(seedFilter), FALSE, seedFilter)
   
   seedDF = adm2@data[seedFilter,]
@@ -534,17 +545,20 @@ AI.gen_v2 <- function(dsn="data\\CHN_adm",
     # if, for example, a seed (seeds-n-1) in group seeds-n is found within seedMergeDist of any one of seed in group seeds-m, all seeds in group seeds-n will be merged to group seeds-m.
     # In this case, since the seed groups are updated (seeds-m gets expanded,and seeds-n get destroied), we need to restart the outer while-loop again and continue testing distance between the updated seed groups
     reloopflag = TRUE
-    
+    loopcounter = 0
     while(reloopflag){
+      reloopflag = FALSE
+      loopcounter = loopcounter + 1
+      print(sprintf("loopcounter %i",loopcounter))
       # merge seed by "minimaldist" method: two closest seeds will be merged if their distance is within the seedMergeDist; 
       for(n in 1:length(testList)){
-        reloopflag = FALSE
+        #reloopflag = FALSE
         if(length(testList[[n]])==1 & testList[[n]][1]==-1){
           next
         }
         
         for(m in 1:length(testList)){
-          reloopflag = FALSE
+          #reloopflag = FALSE
           if (m == n){
             next
           }
@@ -571,12 +585,12 @@ AI.gen_v2 <- function(dsn="data\\CHN_adm",
             testList[[n]] = c(testList[[n]], testList[[m]])
             testList[[m]] = c(-1)
             reloopflag = TRUE
-            break
+            #break
           }
           
         }
         if (reloopflag){
-          break
+          #break
         }
       }
     }
@@ -884,6 +898,16 @@ AI.gen_v2 <- function(dsn="data\\CHN_adm",
   
   writeOGR(obj=adm2, dsn=outShpFileDir, layer=sprintf("AI_%i_%i_%i", thPopDen, thSeedMinPop, thTvlTime), driver="ESRI Shapefile", check_exists=TRUE, overwrite_layer=TRUE)
   
+  #attach region infor to csv outputs
+  AI.attachRegionInfo(dsn=dsn,outDir=gOutRootDir,
+                      polyFileName=polyFileName, 
+                      thPopDen=thPopDen, 
+                      thSeedMinPop=thSeedMinPop,
+                      thTvlTime=thTvlTime, 
+                      seedDirName=seedDirName,
+                      countryName=gCountryName,
+                      dataYear=gDataYear)
+  
   # save routeInfo
   RouteInfo.save(routeInfoFilePath)
   
@@ -898,6 +922,49 @@ AI.gen_v2 <- function(dsn="data\\CHN_adm",
   print("===========GG Key Usage END===========")
   
   print(sprintf("==========> all done (in %.2f seconds) <==========", as.numeric(algEndTime-algStartTime, units="secs")))
+}
+
+AI.attachRegionInfo <-function(dsn="data\\CHN_adm", 
+                               outDir=gOutRootDir,
+                               polyFileName="China_adm2", 
+                               thPopDen=400, 
+                               thSeedMinPop=1000000,
+                               thTvlTime=90, 
+                               seedDirName="ByKeyCities_SeedMergeDist90",
+                               countryName=gCountryName,
+                               dataYear=gDataYear
+                               ){
+  
+  outShpFileDir = sprintf("%s%s/%s/%s",outDir, countryName, dataYear, seedDirName)
+  
+  adm2 <- readOGR(dsn=dsn,layer=polyFileName,encoding="utf8", verbose=FALSE)
+  # using orgSeqId filed to ensure that the merged data can match polygons
+  adm2@data[,"orgSeqId"] = c(1:nrow(adm2@data))
+  
+  keycities <- readOGR(dsn=sprintf("%s\\%s",dsn,"7-city-regions"),layer="China_adm2_SSHan_KeyCities",encoding="utf8", verbose=FALSE)
+  
+  fileTypes = c("aggseed","orgseed")
+  
+  for(k in 1:length(fileTypes)){
+    dataTable = read.table(sprintf("%s/AI_%i_%i_%i_%s.csv", outShpFileDir, thPopDen, thSeedMinPop, thTvlTime, fileTypes[k]), header=TRUE, sep=",", blank.lines.skip = TRUE, fill = TRUE)
+    #get id for each row in dataTable from original shp file
+    filter = adm2@data[, "orgSeqId"] %in% dataTable[, "seedIdx"]
+    
+    dataTable[,"districId"] = adm2@data[filter, c("id")]
+    dataTable[,"cityRegion"]= NULL
+    #get region info from "China_adm2_SSHan_KeyCities.shp", linked by id
+    
+    for(i in 1:nrow(dataTable)){
+      filter = keycities@data[,"id"] %in% dataTable[i,"districId"]
+      if(nrow(keycities@data[filter,])>0){
+        dataTable[i,"cityRegion"] = keycities@data[filter,"cityregion"]
+      }
+    }
+    
+    write.table(dataTable, file=sprintf("%s/AI_%i_%i_%i_%s_region.csv", outShpFileDir, thPopDen, thSeedMinPop, thTvlTime, fileTypes[k]), row.names = FALSE, sep=",")
+    
+  }
+ 
 }
 
 # generate Agglomeration Index based on given data sets
