@@ -373,9 +373,9 @@ GeoTool.getLatLonDistance <- function(sLat, sLon, eLat, eLon){
 AI.gen_v2 <- function(dsn="data\\CHN_adm", 
                    polyFileName="China_adm2", 
                    outDir=gOutRootDir,
-                   thPopDen=150, 
-                   thSeedMinPop=1000000,
-                   thTvlTime=60, 
+                   thPopDen=400, 
+                   thSeedMinPop=500000,
+                   thTvlTime=90, 
                    thSearchSeedRadius=200, 
                    thGeoCodingDistShift=3,
                    th_seed_minden = 400,
@@ -392,7 +392,7 @@ AI.gen_v2 <- function(dsn="data\\CHN_adm",
                    useSeedCandidates = FALSE,
                    countryName=gCountryName,
                    dataYear=gDataYear,
-                   seedMergeDist=60
+                   seedMergeDist=90
 ){
   # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   # Input parameters:
@@ -924,11 +924,14 @@ AI.gen_v2 <- function(dsn="data\\CHN_adm",
   print(sprintf("==========> all done (in %.2f seconds) <==========", as.numeric(algEndTime-algStartTime, units="secs")))
 }
 
+
+# the new 7 giant region is created by apply 75.5km (90 min travel distance) buffer from the boundary of Han's key cities.
+# a China_adm2 polygon will be assigned with a region if its centroid is with this buffered region boundary
 AI.attachRegionInfo <-function(dsn="data\\CHN_adm", 
                                outDir=gOutRootDir,
                                polyFileName="China_adm2", 
                                thPopDen=400, 
-                               thSeedMinPop=1000000,
+                               thSeedMinPop=500000,
                                thTvlTime=90, 
                                seedDirName="ByKeyCities_SeedMergeDist90",
                                countryName=gCountryName,
@@ -941,7 +944,7 @@ AI.attachRegionInfo <-function(dsn="data\\CHN_adm",
   # using orgSeqId filed to ensure that the merged data can match polygons
   adm2@data[,"orgSeqId"] = c(1:nrow(adm2@data))
   
-  keycities <- readOGR(dsn=sprintf("%s\\%s",dsn,"7-city-regions"),layer="China_adm2_SSHan_KeyCities",encoding="utf8", verbose=FALSE)
+  keycities <- readOGR(dsn=dsn,layer="China_adm2_centroid_with_region",encoding="utf8", verbose=FALSE)
   
   fileTypes = c("aggseed","orgseed")
   
@@ -1711,3 +1714,15 @@ AI.sum <- function(vecThPopDen=c(150, 300, 500),
     print("=====done")
   }
 }
+
+
+
+#seednames=c()
+#for(i in 1:nrow(df@data)){
+  
+#  if(!is.na(df@data[i,"SUMES00POP"]) & df@data[i,"SUMES00POP"]>500000){
+    
+#    seednames=c(seednames,as.vector(df@data[i,"name"]))
+#    }
+  
+#}
